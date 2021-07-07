@@ -13,4 +13,13 @@
     main {
         flex: 1;
     }
+    :global(.italic) {
+        font-style: italic;
+    }
+    :global(.fix-width) {
+        max-width: 1000px;
+        margin: auto !important;
+        background-color: #f7f7f7;
+        padding: 0 20px;
+    }
 </style>

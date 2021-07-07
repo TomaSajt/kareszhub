@@ -16,7 +16,7 @@
                 <a href="./other-stuff">Other Stuff</a>
             </li>
             <li>
-                <a href="./KOTW">About Website</a>
+                <a href="./about">About Website</a>
             </li>
         </ul>
     </nav>
