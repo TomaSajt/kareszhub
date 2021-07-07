@@ -127,7 +127,7 @@
     bind:this={canvas}
     style="--width: {pixelWidth * 2}px; --height: {pixelHeight * 2}px"
 />
-<img src="static/favicon.png" alt="Karesz" bind:this={kareszImg} />
+<img src="favicon.png" alt="Karesz" bind:this={kareszImg} />
 
 <style lang="scss">
     img {
