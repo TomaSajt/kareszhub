@@ -7,55 +7,69 @@
     <nav>
         <ul class="flex">
             <li>
-                <img src="favicon.png" alt="Karesz" />
+                <a href="./KOTW">KOTW</a>
             </li>
             <li>
-                <img src="favicon.png" alt="Karesz" />
+                <a href="https://kareszhub.vercel.app/kareszClicker">Karesz Clicker</a>
+            </li>
+            <li id='left-start'>
+                <a href="./other-stuff">Other Stuff</a>
             </li>
             <li>
-                <img src="favicon.png" alt="Karesz" />
+                <a href="./KOTW">About Website</a>
             </li>
         </ul>
     </nav>
 </header>
 
 <style lang="scss">
+    a {
+        text-decoration: none;
+        color: #000;
+    }
+    a:hover {
+        color: #1020f3;
+    }
     header {
+        $gap: 20px;
+
         border-bottom: 1px solid lightgray;
-        padding: 10px 5px;
-        div#logo {
-            div#border {
-                display: grid;
-                place-items: center;
-                padding: 5px;
-                border: #1020f3 3px solid;
-                border-radius: 30px;
-                width: 150px;
-                height: 60px;
-                a {
-                    font-size: 20px;
-                    font-weight: bold;
-                    text-decoration: none;
-                    color: #1020f3;
-                    text-align: center;
-                }
-            }
-        }
+        padding: 10px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: $gap;
+        //background-color: yellow;
         nav {
-            margin-top: 5px;
+            &::-webkit-scrollbar {
+                $size: 3px;
+                height: $size;
+                width: $size;
+            }
+            &::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+            &::-webkit-scrollbar-thumb {
+                background: #777;
+            }
+            &::-webkit-scrollbar-thumb:hover {
+                background: #aaa;
+            }
+            white-space: nowrap;
+            //background-color: red;
+            flex-grow: 1;
+            overflow-x: auto;
             ul {
                 margin: 0;
                 padding: 0;
                 list-style: none;
                 display: flex;
-                justify-content: space-between;
-                li {
-                    img {
-                        width: 100px;
-                        image-rendering: pixelated;
-                    }
-                }
+                justify-content: flex-start;
+                gap: $gap;
             }
         }
+    }
+
+    #left-start {
+        margin-left: auto;
     }
 </style>
