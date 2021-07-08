@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { afterUpdate, onMount } from "svelte";
+    import { afterUpdate, onDestroy, onMount } from "svelte";
     enum Cell {
         OOB = -1,
         Empty = 0,
@@ -41,7 +41,14 @@
     let height: number = 10;
     let canvas: HTMLCanvasElement;
     let kareszImg: HTMLImageElement;
-    let board: Board;
+    let board: Board = [
+        [],
+        [0, 0, 0, 1],
+        [0, 1, 0, 0, 1],
+        [0, 0, 0, 0, 1],
+        [0, 1, 0, 0, 1],
+        [0, 0, 0, 1],
+    ];
     let kareszPosX = 5;
     let kareszPosY = 5;
 
@@ -50,12 +57,16 @@
     $: pixelHeight = height * (cellSize + 1) + 1;
 
     // Board recalc
-    $: board = newBoard(width, height);
+    $: {
+        board = newBoard(width, height);
+        if (kareszPosX >= width) kareszPosX = width - 1;
+        if (kareszPosY >= height) kareszPosY = height - 1;
+    }
 
     function newBoard(width: number, height: number) {
         let newBoard: Board = new Array<Cell[]>(width);
         for (let i = 0; i < width; i++) {
-            newBoard[i] = new Array<Cell>(height);
+            newBoard[i] = new Array<Cell>(height).fill(Cell.Empty);
         }
         if (!board) return newBoard;
 
@@ -70,13 +81,13 @@
         let ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let index = 0; index <= width; index++) {
-            ctx.beginPath()
+            ctx.beginPath();
             ctx.moveTo(index * (cellSize + 1) + 0.5, 0);
             ctx.lineTo(index * (cellSize + 1) + 0.5, pixelHeight);
             ctx.stroke();
         }
         for (let index = 0; index <= height; index++) {
-            ctx.beginPath()
+            ctx.beginPath();
             ctx.moveTo(0, index * (cellSize + 1) + 0.5);
             ctx.lineTo(pixelWidth, index * (cellSize + 1) + 0.5);
             ctx.stroke();
@@ -112,12 +123,24 @@
         );
     }
 
+    async function handleFileUploaded(this: HTMLInputElement) {
+        if (this.files) {
+            let text = await this.files[0].text();
+
+            console.log(text);
+        }
+    }
+
+    function validateContent(text: string) {}
+
     onMount(() => {
         let ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
-        kareszImg.addEventListener("load", () => {
-            drawCanvas();
-        });
+        kareszImg.addEventListener("load", drawCanvas);
+    });
+    onDestroy(() => {
+        console.log("destroyed");
+        if (kareszImg) kareszImg.removeEventListener("load", drawCanvas);
     });
     afterUpdate(() => {
         drawCanvas();
@@ -155,16 +178,13 @@
     bind:this={canvas}
     style="--width: {pixelWidth * 2}px; --height: {pixelHeight * 2}px"
 />
-<button
-    on:click={() => {
-        board[kareszPosX][kareszPosY] = Cell.Red;
-        board[kareszPosX + 1][kareszPosY] = Cell.Blue;
-        board[kareszPosX - 1][kareszPosY] = Cell.Black;
-        board[kareszPosX][kareszPosY + 1] = Cell.Yellow;
-        board[kareszPosX][kareszPosY - 1] = Cell.Green;
-        board = board;
-    }}>Click here</button
->
+<input
+    type="file"
+    id="myFile"
+    name="filename"
+    accept=".krm"
+    on:change={handleFileUploaded}
+/>
 
 <style lang="scss">
     img {
