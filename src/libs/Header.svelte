@@ -10,9 +10,11 @@
                 <a href="./KOTW">KOTW</a>
             </li>
             <li>
-                <a href="https://kareszhub.vercel.app/kareszClicker">Karesz Clicker</a>
+                <a href="https://kareszhub.vercel.app/kareszClicker"
+                    >Karesz Clicker</a
+                >
             </li>
-            <li id='left-start'>
+            <li id="left-start">
                 <a href="./other-stuff">Other Stuff</a>
             </li>
             <li>
@@ -31,14 +33,14 @@
         color: #1020f3;
     }
     header {
-        $gap: 20px;
-
         border-bottom: 1px solid lightgray;
         padding: 10px 20px;
         display: flex;
         flex-wrap: wrap;
-        gap: $gap;
         //background-color: yellow;
+        > div {
+            margin-right: 10px;
+        }
         nav {
             &::-webkit-scrollbar {
                 $size: 3px;
@@ -64,7 +66,9 @@
                 list-style: none;
                 display: flex;
                 justify-content: flex-start;
-                gap: $gap;
+                li:not(:first-child) {
+                    margin-left: 10px;
+                }
             }
         }
     }

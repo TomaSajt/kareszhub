@@ -20,6 +20,6 @@
         max-width: 1000px;
         margin: auto !important;
         background-color: #f7f7f7;
-        padding: 0 20px;
+        padding: 20px;
     }
 </style>

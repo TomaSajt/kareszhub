@@ -8,15 +8,17 @@
         Red = 3,
         Green = 4,
         Yellow = 5,
-        Blue = 6
+        Blue = 6,
     }
 
     enum Dir {
         North = 0,
         East = 1,
         South = 2,
-        West = 3
+        West = 3,
     }
+
+    type Board = Cell[][];
     //Constants
     const cellSize = 20;
 
@@ -27,49 +29,44 @@
     const maxHeight = 20;
 
     //Cell to Color
-    const cellToColorMap = new Map<Cell, string>()
-    cellToColorMap.set(Cell.Black, 'black')
-    cellToColorMap.set(Cell.Red, 'red')
-    cellToColorMap.set(Cell.Green, 'green')
-    cellToColorMap.set(Cell.Yellow, 'yellow')
-    cellToColorMap.set(Cell.Blue, 'blue')
-    function isStone(posX: number, posY: number) {
-        return board[posX][posY] > 1
-    }
+    const cellToColorMap = new Map<Cell, string>();
+    cellToColorMap.set(Cell.Black, "black");
+    cellToColorMap.set(Cell.Red, "red");
+    cellToColorMap.set(Cell.Green, "green");
+    cellToColorMap.set(Cell.Yellow, "yellow");
+    cellToColorMap.set(Cell.Blue, "blue");
 
     //Variables
     let width: number = 15;
     let height: number = 10;
     let canvas: HTMLCanvasElement;
     let kareszImg: HTMLImageElement;
-    let board: Cell[][];
-    let prevBoard: Cell[][];
+    let board: Board;
+    let kareszPosX = 5;
+    let kareszPosY = 5;
 
     // Computed properties
     $: pixelWidth = width * (cellSize + 1) + 1;
     $: pixelHeight = height * (cellSize + 1) + 1;
 
     // Board recalc
-    $: {
-        board = [];
+    $: board = newBoard(width, height);
+
+    function newBoard(width: number, height: number) {
+        let newBoard: Board = new Array<Cell[]>(width);
         for (let i = 0; i < width; i++) {
-            board[i] = [];
-            for (let j = 0; j < height; j++) {
-                board[i][j] = Math.floor(Math.random() * 2) ? Cell.Empty : Cell.Black;
+            newBoard[i] = new Array<Cell>(height);
+        }
+        if (!board) return newBoard;
+
+        for (let i = 0; i < Math.min(board.length, width); i++) {
+            for (let j = 0; j < Math.min(board[i].length, height); j++) {
+                newBoard[i][j] = board[i][j];
             }
         }
-        console.log('Board', board);
-        console.log('Prev Board', prevBoard);
-        console.log('end');
-        
-        prevBoard = board;
+        return newBoard;
     }
-
-    onMount(() => {
-        let ctx = canvas.getContext("2d");
-        ctx.imageSmoothingEnabled = false;
-    });
-    afterUpdate(() => {
+    function drawCanvas() {
         let ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let index = 0; index <= width; index++) {
@@ -84,19 +81,48 @@
         }
         for (let i = 0; i < width; i++) {
             for (let j = 0; j < height; j++) {
-                if (isStone(i, j)) {
-                    ctx.drawImage(
-                        kareszImg,
+                if (board[i][j] == Cell.Wall) {
+                    ctx.fillStyle = "gray";
+                    ctx.fillRect(
                         i * (cellSize + 1) + 1,
-                        j * (cellSize + 1) + 1
+                        j * (cellSize + 1) + 1,
+                        cellSize,
+                        cellSize
                     );
+                } else if (board[i][j] > Cell.Wall) {
+                    ctx.fillStyle = cellToColorMap.get(board[i][j]);
+                    ctx.beginPath();
+                    ctx.arc(
+                        i * (cellSize + 1) + 1 + cellSize / 2,
+                        j * (cellSize + 1) + 1 + cellSize / 2,
+                        (0.9 * cellSize) / 2,
+                        0,
+                        2 * Math.PI
+                    );
+                    ctx.fill();
                 }
-                board[i][j];
             }
         }
+        ctx.drawImage(
+            kareszImg,
+            kareszPosX * (cellSize + 1) + 1,
+            kareszPosY * (cellSize + 1) + 1
+        );
+    }
+
+    onMount(() => {
+        let ctx = canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = false;
+        kareszImg.addEventListener("load", () => {
+            drawCanvas();
+        });
+    });
+    afterUpdate(() => {
+        drawCanvas();
     });
 </script>
 
+<img src="favicon.png" alt="Karesz" bind:this={kareszImg} />
 <div id="sliderContainer">
     <div>
         <label for="widthSlider">Width</label><br />
@@ -127,7 +153,16 @@
     bind:this={canvas}
     style="--width: {pixelWidth * 2}px; --height: {pixelHeight * 2}px"
 />
-<img src="favicon.png" alt="Karesz" bind:this={kareszImg} />
+<button
+    on:click={() => {
+        board[kareszPosX][kareszPosY] = Cell.Red;
+        board[kareszPosX + 1][kareszPosY] = Cell.Blue;
+        board[kareszPosX - 1][kareszPosY] = Cell.Black;
+        board[kareszPosX][kareszPosY + 1] = Cell.Yellow;
+        board[kareszPosX][kareszPosY - 1] = Cell.Green;
+        board = board;
+    }}>Click here</button
+>
 
 <style lang="scss">
     img {
