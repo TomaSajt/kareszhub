@@ -70,11 +70,13 @@
         let ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let index = 0; index <= width; index++) {
+            ctx.beginPath()
             ctx.moveTo(index * (cellSize + 1) + 0.5, 0);
             ctx.lineTo(index * (cellSize + 1) + 0.5, pixelHeight);
             ctx.stroke();
         }
         for (let index = 0; index <= height; index++) {
+            ctx.beginPath()
             ctx.moveTo(0, index * (cellSize + 1) + 0.5);
             ctx.lineTo(pixelWidth, index * (cellSize + 1) + 0.5);
             ctx.stroke();
