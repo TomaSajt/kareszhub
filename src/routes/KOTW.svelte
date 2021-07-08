@@ -1,5 +1,7 @@
 <script lang="ts">
-    import { afterUpdate, onDestroy, onMount } from "svelte";
+    import type { Color, Instruction } from "src/libs/KOTW/instructions";
+
+    import { afterUpdate, onDestroy, onMount, tick } from "svelte";
     enum Cell {
         OOB = -1,
         Empty = 0,
@@ -28,29 +30,96 @@
     const minHeight = 1;
     const maxHeight = 20;
 
-    //Cell to Color
-    const cellToColorMap = new Map<Cell, string>();
-    cellToColorMap.set(Cell.Black, "black");
-    cellToColorMap.set(Cell.Red, "red");
-    cellToColorMap.set(Cell.Green, "green");
-    cellToColorMap.set(Cell.Yellow, "yellow");
-    cellToColorMap.set(Cell.Blue, "blue");
+    const instructions: Instruction[] = [
+        {
+            name: "repeat",
+            times: 4,
+            children: [
+                {
+                    name: "repeat",
+                    times: 2,
+                    children: [
+                        { name: "step" },
+                        { name: "place", color: "red" },
+                        { name: "step" },
+                        { name: "place", color: "red" },
+                        { name: "turnright" },
+                    ],
+                },
+                { name: "step" },
+                { name: "place", color: "red" },
+                { name: "step" },
+                { name: "place", color: "red" },
+                { name: "turnleft" },
+            ],
+        },
+        {
+            name: "repeat",
+            times: 4,
+            children: [
+                { name: "step" },
+                { name: "turnright" },
+                { name: "step" },
+                { name: "turnleft" },
+            ],
+        },
+    ];
+
+    function DirToImage(dir: Dir) {
+        switch (dir) {
+            case Dir.North:
+                return kareszImgNorth;
+            case Dir.East:
+                return kareszImgEast;
+            case Dir.South:
+                return kareszImgSouth;
+            case Dir.West:
+                return kareszImgWest;
+        }
+    }
+    function ColorToCell(color: Color): Cell {
+        switch (color) {
+            case "black":
+                return Cell.Black;
+            case "red":
+                return Cell.Red;
+            case "green":
+                return Cell.Green;
+            case "yellow":
+                return Cell.Yellow;
+            case "blue":
+                return Cell.Blue;
+        }
+    }
+
+    function CellToColor(cell: Cell): Color {
+        switch (cell) {
+            case Cell.Black:
+                return "black";
+            case Cell.Red:
+                return "red";
+            case Cell.Green:
+                return "green";
+            case Cell.Yellow:
+                return "yellow";
+            case Cell.Blue:
+                return "blue";
+        }
+    }
 
     //Variables
-    let width: number = 15;
-    let height: number = 10;
+    let running = false;
+    let width: number = maxWidth;
+    let height: number = maxHeight;
     let canvas: HTMLCanvasElement;
-    let kareszImg: HTMLImageElement;
-    let board: Board = [
-        [],
-        [0, 0, 0, 1],
-        [0, 1, 0, 0, 1],
-        [0, 0, 0, 0, 1],
-        [0, 1, 0, 0, 1],
-        [0, 0, 0, 1],
-    ];
-    let kareszPosX = 5;
-    let kareszPosY = 5;
+    let kareszImgNorth: HTMLImageElement;
+    let kareszImgEast: HTMLImageElement;
+    let kareszImgSouth: HTMLImageElement;
+    let kareszImgWest: HTMLImageElement;
+    let board: Board;
+    let kareszPosX = 4;
+    let kareszPosY = 2;
+    let kareszDir = Dir.East;
 
     // Computed properties
     $: pixelWidth = width * (cellSize + 1) + 1;
@@ -59,8 +128,20 @@
     // Board recalc
     $: {
         board = newBoard(width, height);
+        clapKaresz();
+    }
+
+    function clapKaresz() {
         if (kareszPosX >= width) kareszPosX = width - 1;
         if (kareszPosY >= height) kareszPosY = height - 1;
+    }
+
+    $: {
+        board;
+        kareszPosX;
+        kareszPosY;
+        kareszDir;
+        renderCanvas();
     }
 
     function newBoard(width: number, height: number) {
@@ -77,7 +158,8 @@
         }
         return newBoard;
     }
-    function drawCanvas() {
+    function renderCanvas() {
+        if (!canvas) return;
         let ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let index = 0; index <= width; index++) {
@@ -103,7 +185,7 @@
                         cellSize
                     );
                 } else if (board[i][j] > Cell.Wall) {
-                    ctx.fillStyle = cellToColorMap.get(board[i][j]);
+                    ctx.fillStyle = CellToColor(board[i][j]);
                     ctx.beginPath();
                     ctx.arc(
                         i * (cellSize + 1) + 1 + cellSize / 2,
@@ -117,7 +199,7 @@
             }
         }
         ctx.drawImage(
-            kareszImg,
+            DirToImage(kareszDir),
             kareszPosX * (cellSize + 1) + 1,
             kareszPosY * (cellSize + 1) + 1
         );
@@ -131,23 +213,101 @@
         }
     }
 
+    function getDX() {
+        return kareszDir == Dir.East ? 1 : kareszDir == Dir.West ? -1 : 0;
+    }
+    function getDY() {
+        return kareszDir == Dir.South ? 1 : kareszDir == Dir.North ? -1 : 0;
+    }
+    function turnRight() {
+        kareszDir = (kareszDir + 1) % 4;
+    }
+    function turnLeft() {
+        kareszDir = (kareszDir + 3) % 4;
+    }
+    function place(color: Color) {
+        board[kareszPosX][kareszPosY] = ColorToCell(color);
+    }
+    function step() {
+        let nextX = kareszPosX + getDX();
+        let nextY = kareszPosY + getDY();
+        if (!isPositionValid(nextX, nextY)) {
+            console.log("unable to step");
+            return;
+        }
+        kareszPosX = nextX;
+        kareszPosY = nextY;
+    }
+    function isPositionValid(x: number, y: number) {
+        return (
+            x >= 0 &&
+            y >= 0 &&
+            x < width &&
+            y < height &&
+            board[x][y] != Cell.Wall
+        );
+    }
+
+    async function execute(insts: Instruction[]) {
+        for (let i = 0; i < insts.length; i++) {
+            const inst = insts[i];
+            switch (inst.name) {
+                case "step":
+                    step();
+                    await sleep(100);
+                    break;
+                case "turnright":
+                    turnRight();
+                    await sleep(100);
+                    break;
+                case "turnleft":
+                    turnLeft();
+                    await sleep(100);
+                    break;
+                case "place":
+                    place(inst.color);
+                    await sleep(100);
+                    break;
+
+                case "repeat":
+                    {
+                        let times = inst.times;
+                        for (let j = 0; j < times; j++) {
+                            await execute(inst.children);
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    function sleep(time: number) {
+        return new Promise<void>((r) => setTimeout(() => r(), time));
+    }
     function validateContent(text: string) {}
 
     onMount(() => {
         let ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
-        kareszImg.addEventListener("load", drawCanvas);
+        DirToImage(kareszDir).addEventListener("load", () => renderCanvas());
+        renderCanvas();
     });
     onDestroy(() => {
         console.log("destroyed");
-        if (kareszImg) kareszImg.removeEventListener("load", drawCanvas);
     });
     afterUpdate(() => {
-        drawCanvas();
+        console.log("after update");
+        renderCanvas();
     });
 </script>
 
-<img src="favicon.png" alt="Karesz" bind:this={kareszImg} />
+<img src="Karesz0.png" alt="" bind:this={kareszImgNorth} />
+<img src="Karesz1.png" alt="" bind:this={kareszImgEast} />
+<img src="Karesz2.png" alt="" bind:this={kareszImgSouth} />
+<img src="Karesz3.png" alt="" bind:this={kareszImgWest} />
 <div id="sliderContainer">
     <div>
         <label for="widthSlider">Width</label><br />
@@ -178,6 +338,15 @@
     bind:this={canvas}
     style="--width: {pixelWidth * 2}px; --height: {pixelHeight * 2}px"
 />
+<button
+    id="run-btn"
+    disabled={running}
+    on:click={async () => {
+        running = true;
+        await execute(instructions);
+        running = false;
+    }}>{running ? 'Running' : 'Run'}</button
+>
 <input
     type="file"
     id="myFile"
@@ -210,5 +379,10 @@
         label {
             font-size: 1.5em;
         }
+    }
+    #run-btn {
+        display: block;
+        margin: auto;
+        margin-top: 20px;
     }
 </style>
