@@ -22,4 +22,16 @@
         background-color: #f7f7f7;
         padding: 20px;
     }
+    * {
+        box-sizing: border-box;
+    }
+    :global(body > div) {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    :global(body) {
+        margin: 0;
+        font-family: "Noto Sans JP";
+    }
 </style>
