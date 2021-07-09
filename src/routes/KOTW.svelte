@@ -121,6 +121,8 @@
     let kareszPosX = 4;
     let kareszPosY = 2;
     let kareszDir = Dir.East;
+    let hoveredX = -1;
+    let hoveredY = -1;
 
     // Computed properties
     $: pixelWidth = width * (cellSize + 1) + 1;
@@ -152,6 +154,8 @@
     }
 
     $: {
+        hoveredX;
+        hoveredY;
         width;
         height;
         board;
@@ -184,6 +188,13 @@
             ctx.lineTo(pixelWidth, i * (cellSize + 1) + 0.5);
             ctx.stroke();
         }
+        ctx.fillStyle = "#eee";
+        ctx.fillRect(
+            hoveredX * (cellSize + 1) + 1,
+            hoveredY * (cellSize + 1) + 1,
+            cellSize,
+            cellSize
+        );
         for (let j = 0; j < height; j++) {
             for (let i = 0; i < width; i++) {
                 if (board[j][i] == Cell.Wall) {
@@ -215,44 +226,92 @@
         );
     }
 
+    function handleMouseDown(this: HTMLCanvasElement, ev: MouseEvent) {
+        if(window.matchMedia("(hover: none)").matches) return;
+        ev.preventDefault();
+        let boardPos = mouseEventToBoardPos(this, ev);
+        onBoardClick(boardPos.x, boardPos.y, ev);
+    }
+    function handleMouseMove(this: HTMLCanvasElement, ev: MouseEvent) {
+        ev.preventDefault();
+        let boardPos = mouseEventToBoardPos(this, ev);
+        if (hoveredX != boardPos.x) {
+            hoveredX = boardPos.x;
+        }
+        if (hoveredY != boardPos.y) {
+            hoveredY = boardPos.y;
+        }
+    }
+    function mouseEventToBoardPos(el: Element, ev: MouseEvent) {
+        const rect = el.getBoundingClientRect();
+        let clickX = ev.clientX - rect.left;
+        let clickY = ev.clientY - rect.top;
+        let almostBoardX = Math.floor(clickX / (2 * (cellSize + 1)));
+        let almostBoardY = Math.floor(clickY / (2 * (cellSize + 1)));
+        let boardX = Math.min(almostBoardX, width - 1);
+        let boardY = Math.min(almostBoardY, height - 1);
+        return {
+            x: boardX,
+            y: boardY,
+        };
+    }
+    function onBoardClick(boardX: number, boardY: number, ev: MouseEvent) {
+        if (kareszPosX == boardX && kareszPosY == boardY) {
+            turnRight();
+            return;
+        }
+        kareszPosX = boardX;
+        kareszPosY = boardY;
+    }
+
     async function handleFileUploaded(this: HTMLInputElement) {
         let file = this.files[0];
         this.value = "";
         if (!file) return;
-        if (!file.name.endsWith(".krm") && !file.name.endsWith('.txt')) return alert("Invalid file extension");
+        if (!file.name.endsWith(".krm") && !file.name.endsWith(".txt"))
+            return alert("Invalid file extension");
         let text = await file.text();
         if (!validateContent(text)) return alert("Invalid file content");
         let partialNewBoard = parseInput(text);
-        let grWidth = 0
+        let grWidth = 0;
         for (let j = 0; j < partialNewBoard.length; j++) {
-            if(partialNewBoard[j].length> grWidth) grWidth = partialNewBoard[j].length;
+            if (partialNewBoard[j].length > grWidth)
+                grWidth = partialNewBoard[j].length;
         }
-        width = grWidth
-        height = partialNewBoard.length
-        board = newBoardFromPartial(grWidth, partialNewBoard.length, partialNewBoard)
+        width = grWidth;
+        height = partialNewBoard.length;
+        board = newBoardFromPartial(
+            grWidth,
+            partialNewBoard.length,
+            partialNewBoard
+        );
     }
     function validateContent(text: string) {
-        return !!text.match(/^\d+((,|\t)\d+)*((\r\n|\n)\d+((,|\t)\d+)*)*(\r\n|\n)?$/);
+        return !!text.match(
+            /^\d+((,|\t)\d+)*((\r\n|\n)\d+((,|\t)\d+)*)*(\r\n|\n)?$/
+        );
     }
     function parseInput(text: string): Board {
-        let a = text
+        let a = text;
         console.log(a);
-        let b = a.trim()
+        let b = a.trim();
         console.log(b);
-        let c = b.replace(/\r\n/g, "\n")
+        let c = b.replace(/\r\n/g, "\n");
         console.log(c);
-        let d = c.replace(/\t/g, ',')
+        let d = c.replace(/\t/g, ",");
         console.log(d);
-        let e = d.split("\n")
+        let e = d.split("\n");
         console.log(e);
-        let f = e.map((line) => line.split(",").map(split=> parseInt(split)));
+        let f = e.map((line) =>
+            line.split(",").map((split) => parseInt(split))
+        );
         console.log(f);
-        return f
+        return f;
     }
 
     function reset() {
-        width = defaultWidth
-        height = defaultHeight
+        width = defaultWidth;
+        height = defaultHeight;
         board = emptyBoard(defaultWidth, defaultHeight);
     }
 
@@ -371,6 +430,8 @@
     width={pixelWidth}
     height={pixelHeight}
     bind:this={canvas}
+    on:mousedown={handleMouseDown}
+    on:mousemove={handleMouseMove}
     style="--width: {pixelWidth * 2}px; --height: {pixelHeight * 2}px"
 />
 <div id="btn-box">
