@@ -1,5 +1,6 @@
 <script lang="ts">
-    import type { Color, Instruction } from "src/libs/KOTW/instructions";
+    import type { Color, Instruction } from "../libs/KOTW/instructions";
+    import Instructions from "../libs/KOTW/Instuctions.svelte";
     import { onMount } from "svelte";
 
     enum Cell {
@@ -30,6 +31,10 @@
     const maxHeight = 20;
     const defaultHeight = 20;
 
+    const minSpeed = 1;
+    const maxSpeed = 40;
+    const defaultSpeed = 10;
+
     const instructions: Instruction[] = [
         {
             name: "repeat",
@@ -42,14 +47,14 @@
                         { name: "step" },
                         { name: "place", color: "red" },
                         { name: "step" },
-                        { name: "place", color: "red" },
+                        { name: "place", color: "green" },
                         { name: "turnright" },
                     ],
                 },
                 { name: "step" },
                 { name: "place", color: "red" },
                 { name: "step" },
-                { name: "place", color: "red" },
+                { name: "place", color: "green" },
                 { name: "turnleft" },
             ],
         },
@@ -57,9 +62,21 @@
             name: "repeat",
             times: 4,
             children: [
+                {
+                    name: "repeat",
+                    times: 2,
+                    children: [
+                        { name: "step" },
+                        { name: "pickup" },
+                        { name: "step" },
+                        { name: "pickup" },
+                        { name: "turnright" },
+                    ],
+                },
                 { name: "step" },
-                { name: "turnright" },
+                { name: "pickup" },
                 { name: "step" },
+                { name: "pickup" },
                 { name: "turnleft" },
             ],
         },
@@ -117,6 +134,7 @@
     let running = false;
     let width: number = defaultWidth;
     let height: number = defaultHeight;
+    let speed = defaultSpeed;
     let board: Board;
     let kareszPosX = 4;
     let kareszPosY = 2;
@@ -127,6 +145,7 @@
     // Computed properties
     $: pixelWidth = width * (cellSize + 1) + 1;
     $: pixelHeight = height * (cellSize + 1) + 1;
+    $: sleepTime = 1000 / speed;
 
     // Board recalc
     $: {
@@ -225,9 +244,7 @@
             kareszPosY * (cellSize + 1) + 1
         );
     }
-
     function handleMouseDown(this: HTMLCanvasElement, ev: MouseEvent) {
-        if(window.matchMedia("(hover: none)").matches) return;
         ev.preventDefault();
         let boardPos = mouseEventToBoardPos(this, ev);
         onBoardClick(boardPos.x, boardPos.y, ev);
@@ -256,12 +273,17 @@
         };
     }
     function onBoardClick(boardX: number, boardY: number, ev: MouseEvent) {
-        if (kareszPosX == boardX && kareszPosY == boardY) {
-            turnRight();
-            return;
+        if (ev.button == 0) {
+            if (kareszPosX == boardX && kareszPosY == boardY) {
+                turnRight();
+                return;
+            }
+            kareszPosX = boardX;
+            kareszPosY = boardY;
+        } else if (ev.button == 2) {
+            board[boardY][boardX] =
+                board[boardY][boardX] == Cell.Empty ? Cell.Wall : Cell.Empty;
         }
-        kareszPosX = boardX;
-        kareszPosY = boardY;
     }
 
     async function handleFileUploaded(this: HTMLInputElement) {
@@ -308,11 +330,20 @@
         console.log(f);
         return f;
     }
+    async function waitBetweenInstrs() {
+        await sleep(sleepTime);
+    }
 
     function reset() {
+        running = false;
         width = defaultWidth;
         height = defaultHeight;
+        speed = defaultSpeed;
         board = emptyBoard(defaultWidth, defaultHeight);
+    }
+
+    function complain(text: string) {
+        console.warn(text);
     }
 
     function getDX() {
@@ -328,15 +359,20 @@
         kareszDir = (kareszDir + 3) % 4;
     }
     function place(color: Color) {
+        if (board[kareszPosY][kareszPosX] != Cell.Empty)
+            return complain("I can't place my stone here");
         board[kareszPosY][kareszPosX] = ColorToCell(color);
+    }
+    function pickup() {
+        if (board[kareszPosY][kareszPosX] < 2)
+            return complain("I can't pick up anything");
+        board[kareszPosY][kareszPosX] = Cell.Empty;
     }
     function step() {
         let nextX = kareszPosX + getDX();
         let nextY = kareszPosY + getDY();
-        if (!isPositionValid(nextX, nextY)) {
-            console.log("unable to step");
-            return;
-        }
+        if (!isPositionValid(nextX, nextY))
+            return complain("I can't step forward");
         kareszPosX = nextX;
         kareszPosY = nextY;
     }
@@ -350,37 +386,42 @@
         );
     }
 
+    async function run() {
+        running = true;
+        await execute(instructions);
+        running = false;
+    }
     async function execute(insts: Instruction[]) {
         for (let i = 0; i < insts.length; i++) {
+            if (!running) return;
             const inst = insts[i];
             switch (inst.name) {
                 case "step":
                     step();
-                    await sleep(100);
+                    await waitBetweenInstrs();
                     break;
                 case "turnright":
                     turnRight();
-                    await sleep(100);
+                    await waitBetweenInstrs();
                     break;
                 case "turnleft":
                     turnLeft();
-                    await sleep(100);
+                    await waitBetweenInstrs();
                     break;
                 case "place":
                     place(inst.color);
-                    await sleep(100);
+                    await waitBetweenInstrs();
+                    break;
+                case "pickup":
+                    pickup();
+                    await waitBetweenInstrs();
                     break;
 
                 case "repeat":
-                    {
-                        let times = inst.times;
-                        for (let j = 0; j < times; j++) {
-                            await execute(inst.children);
-                        }
+                    let times = inst.times;
+                    for (let j = 0; j < times; j++) {
+                        await execute(inst.children);
                     }
-                    break;
-
-                default:
                     break;
             }
         }
@@ -425,23 +466,34 @@
             name="heightSlider"
         />
     </div>
+    <div>
+        <label for="speedSlider">Speed</label><br />
+        <input
+            type="range"
+            min={minSpeed}
+            max={maxSpeed}
+            bind:value={speed}
+            id="speedSlider"
+            name="speedSlider"
+        />
+    </div>
 </div>
 <canvas
     width={pixelWidth}
     height={pixelHeight}
     bind:this={canvas}
+    on:mouseleave={() => {
+        hoveredX = -1;
+        hoveredY = -1;
+    }}
     on:mousedown={handleMouseDown}
     on:mousemove={handleMouseMove}
+    on:contextmenu={(e) => e.preventDefault()}
     style="--width: {pixelWidth * 2}px; --height: {pixelHeight * 2}px"
 />
 <div id="btn-box">
-    <button
-        disabled={running}
-        on:click={async () => {
-            running = true;
-            await execute(instructions);
-            running = false;
-        }}>{running ? "Running" : "Run"}</button
+    <button disabled={running} on:click={run}
+        >{running ? "Running" : "Run"}</button
     >
     <input
         type="file"
@@ -458,6 +510,7 @@
     >
     <button on:click={reset}>Reset</button>
 </div>
+<Instructions instrs={instructions} />
 
 <style lang="scss">
     img {
