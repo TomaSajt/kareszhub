@@ -1,14 +1,12 @@
 <script lang="ts">
     import Minesweeper from "../../libs/pages/misc/Minesweeper.svelte";
-    let a = 9;
 </script>
 
 <svelte:head>
     <title>Minesweeper</title>
 </svelte:head>
 <div id="wrapper">
-    <Minesweeper height={a} width={a} mines={10} />
-    <button on:click={() => a++}>asd</button>
+    <Minesweeper height={9} width={9} mines={10} />
 </div>
 
 <style lang="scss">

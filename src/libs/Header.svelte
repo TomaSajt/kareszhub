@@ -7,7 +7,7 @@
     <nav>
         <ul class="flex">
             <li>
-                <a href="./KOTW">KOTW</a>
+                <a href="/KOTW">KOTW</a>
             </li>
             <li>
                 <a href="https://kareszhub.vercel.app/kareszClicker"
@@ -15,10 +15,10 @@
                 >
             </li>
             <li id="left-start">
-                <a href="./other-stuff">Other Stuff</a>
+                <a href="/other-stuff">Other Stuff</a>
             </li>
             <li>
-                <a href="./about">About Website</a>
+                <a href="/about">About Website</a>
             </li>
         </ul>
     </nav>

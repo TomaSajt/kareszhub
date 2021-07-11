@@ -3,15 +3,17 @@
 </svelte:head>
 
 <div class="fix-width">
-    <h2>Non-Karesz Projects</h2>
+    <h1>Non-Karesz Projects</h1>
     <p>
-        I know this might saound unbelievable, but I do other projects than Karesz.
+        I know this might sound unbelievable, but I do other projects than
+        Karesz.
     </p>
-    <p>Too bad I didn't have time yet to finish this page</p>
+    <h2><a href="./misc/minesweeper">Minesweeper</a></h2>
+    <h2><a href="./misc/3d-test">3D thingy</a></h2>
 </div>
 
 <style lang="scss">
-    h2 {
+    h1 {
         text-align: center;
     }
     * {
@@ -23,5 +25,4 @@
     p {
         text-align: justify;
     }
-    
 </style>
