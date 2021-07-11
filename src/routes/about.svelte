@@ -1,3 +1,6 @@
+<svelte:head>
+    <title>About</title>
+</svelte:head>
 <div class="fix-width">
     <h2>About Kareszhub</h2>
     <p>

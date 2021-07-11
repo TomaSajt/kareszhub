@@ -1,3 +1,7 @@
+<svelte:head>
+    <title>Other Stuff</title>
+</svelte:head>
+
 <div class="fix-width">
     <h2>Non-Karesz Projects</h2>
     <p>

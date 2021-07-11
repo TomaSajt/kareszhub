@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { Color, Instruction } from "../libs/KOTW/instructions";
-    import Instructions from "../libs/KOTW/Instuctions.svelte";
+    import type { Color, Instruction } from "../libs/pages/KOTW/instructions";
+    import Instructions from "../libs/pages/KOTW/Instuctions.svelte";
     import { onMount } from "svelte";
 
     enum Cell {
@@ -439,6 +439,9 @@
     });
 </script>
 
+<svelte:head>
+    <title>Karesz on the Web</title>
+</svelte:head>
 <div id="hidden-imgs">
     <img src="Karesz0.png" alt="" bind:this={kareszImgNorth} />
     <img src="Karesz1.png" alt="" bind:this={kareszImgEast} />

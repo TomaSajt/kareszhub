@@ -33,13 +33,14 @@
         color: #1020f3;
     }
     header {
+        font-size: 24px;
         border-bottom: 1px solid lightgray;
         padding: 10px 20px;
         display: flex;
         flex-wrap: wrap;
         //background-color: yellow;
         > div {
-            margin-right: 10px;
+            margin-right: 20px;
         }
         nav {
             &::-webkit-scrollbar {
@@ -67,7 +68,7 @@
                 display: flex;
                 justify-content: flex-start;
                 li:not(:first-child) {
-                    margin-left: 10px;
+                    margin-left: 20px;
                 }
             }
         }
