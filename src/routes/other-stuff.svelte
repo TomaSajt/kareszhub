@@ -6,7 +6,7 @@
     <p>Too bad I didn't have time yet to finish this page</p>
 </div>
 
-<style>
+<style lang="scss">
     h2 {
         text-align: center;
     }
