@@ -35,7 +35,7 @@
     const maxSpeed = 40;
     const defaultSpeed = 10;
 
-    const instructions: Instruction[] = [
+    let instructions: Instruction[] = [
         {
             name: "repeat",
             times: 4,
@@ -439,11 +439,13 @@
     });
 </script>
 
-<img src="Karesz0.png" alt="" bind:this={kareszImgNorth} />
-<img src="Karesz1.png" alt="" bind:this={kareszImgEast} />
-<img src="Karesz2.png" alt="" bind:this={kareszImgSouth} />
-<img src="Karesz3.png" alt="" bind:this={kareszImgWest} />
-<div id="sliderContainer">
+<div id="hidden-imgs">
+    <img src="Karesz0.png" alt="" bind:this={kareszImgNorth} />
+    <img src="Karesz1.png" alt="" bind:this={kareszImgEast} />
+    <img src="Karesz2.png" alt="" bind:this={kareszImgSouth} />
+    <img src="Karesz3.png" alt="" bind:this={kareszImgWest} />
+</div>
+<div id="slider-container">
     <div>
         <label for="widthSlider">Width</label><br />
         <input
@@ -509,11 +511,23 @@
         }}>Upload level</button
     >
     <button on:click={reset}>Reset</button>
+    <button on:click={()=>{
+        instructions.push({name:"turnleft"})
+        instructions = instructions
+    }}>Add turn left</button>
+    <button on:click={()=>{
+        if(instructions[instructions.length-1].name != "turnleft") return
+        instructions.pop()
+        instructions = instructions
+    }}>Remove turn left</button>
 </div>
-<Instructions instrs={instructions} />
+<div id="instrs-container">
+    <Instructions instrs={instructions} />
+</div>
+
 
 <style lang="scss">
-    img {
+    #hidden-imgs img {
         display: none;
     }
     canvas {
@@ -523,7 +537,7 @@
         width: var(--width);
         height: var(--height);
     }
-    #sliderContainer {
+    #slider-container {
         margin: auto;
         display: flex;
         text-align: center;
@@ -550,5 +564,10 @@
     }
     input[type="file"] {
         display: none !important;
+    }
+    #instrs-container {
+        width: fit-content;
+        margin: auto;
+        padding-bottom: 100px;
     }
 </style>

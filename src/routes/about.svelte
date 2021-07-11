@@ -16,7 +16,7 @@
     </p>
 </div>
 
-<style>
+<style  lang="scss">
     h2 {
         text-align: center;
     }
