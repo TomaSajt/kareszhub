@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { tick } from "svelte";
-
+    import Cell from "./Minesweeper/Cell.svelte";
     export let width: number;
     export let height: number;
     export let mines: number;
@@ -58,9 +57,7 @@
         revealedBoard[i] = true;
         if (adjacencyBoard[i] != 0) return;
         let neighbours = IndexToNeigbours(i);
-        for (const neighbour of neighbours) {
-            reveal(neighbour);
-        }
+        for (const neighbour of neighbours) reveal(neighbour);
     }
     async function explode(i: number) {
         dead = true;
@@ -87,38 +84,31 @@
             .map((pos) => mineBoard[pos])
             .filter(Boolean).length;
     }
+    function CheckForWin() {
+        return revealedBoard.filter(Boolean).length == width * height - mines;
+    }
 </script>
 
-<div id="container" style="grid-template-columns: repeat({width}, auto);">
+<div
+    id="container"
+    style="grid-template-columns: repeat({width}, auto); opacity:{dead
+        ? 0.9
+        : 1};"
+>
     {#each Array(width * height) as _, i}
-        <div
-            class="cell"
-            on:click={() => {
-                reveal(i);
-                logBoard(revealedBoard);
+        <Cell
+            adjacentMines={adjacencyBoard[i]}
+            {dead}
+            isDeathPos={deathPos == i}
+            isMine={mineBoard[i]}
+            isRevealed={revealedBoard[i]}
+            tryReveal={() => {
+                if (!dead) {
+                    reveal(i);
+                    if(CheckForWin()) alert("You won")
+                }
             }}
-            style="background-color: {(() => {
-                if (deathPos == i) return 'fuchsia';
-                if (dead && mineBoard[i]) {
-                    return 'red';
-                }
-                if (revealedBoard[i]) {
-                    if (adjacencyBoard[i] == 0) {
-                        return 'green';
-                    }
-                    return 'orange';
-                }
-                return 'white';
-            })()};"
-        >
-            <span
-                >{(() => {
-                    if (dead && mineBoard[i]) return "X";
-                    if (revealedBoard[i]) return adjacencyBoard[i].toString();
-                    return "";
-                })()}</span
-            >
-        </div>
+        />
     {/each}
 </div>
 <button on:click={newGame}>New Game</button>
@@ -129,13 +119,9 @@
         width: fit-content;
         border: 1px solid;
         background-color: black;
-    }
-    .cell {
-        width: 32px;
-        height: 32px;
-        font-size: 10px;
-        display: grid;
-        place-items: center;
-        border: 1px solid;
+        -webkit-user-select: none; /* Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+/Edge */
+        user-select: none; /* Standard */
     }
 </style>
