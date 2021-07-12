@@ -97,22 +97,26 @@
                 reveal(i);
                 logBoard(revealedBoard);
             }}
-            style="background-color: {revealedBoard[i]
-                ? adjacencyBoard[i] == 0
-                    ? 'green'
-                    : 'orange'
-                : dead && mineBoard[i]
-                ? deathPos == i
-                    ? 'darkviolet'
-                    : 'fuchsia'
-                : 'red'};"
+            style="background-color: {(() => {
+                if (deathPos == i) return 'fuchsia';
+                if (dead && mineBoard[i]) {
+                    return 'red';
+                }
+                if (revealedBoard[i]) {
+                    if (adjacencyBoard[i] == 0) {
+                        return 'green';
+                    }
+                    return 'orange';
+                }
+                return 'white';
+            })()};"
         >
             <span
-                >{revealedBoard[i]
-                    ? adjacencyBoard[i]
-                    : dead && mineBoard[i]
-                    ? "M"
-                    : ""}</span
+                >{(() => {
+                    if (dead && mineBoard[i]) return "X";
+                    if (revealedBoard[i]) return adjacencyBoard[i].toString();
+                    return "";
+                })()}</span
             >
         </div>
     {/each}
