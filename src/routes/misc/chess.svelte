@@ -1,12 +1,12 @@
 <script lang="ts">
-    import Minesweeper from "../../libs/pages/misc/Minesweeper/Minesweeper.svelte";
+    import Chess from "../../libs/pages/misc/Chess/Chess.svelte";
 </script>
 
 <svelte:head>
-    <title>Minesweeper</title>
+    <title>Chess</title>
 </svelte:head>
 <div id="wrapper">
-    <Minesweeper height={9} width={9} mines={2} />
+    <Chess/>
 </div>
 
 <style lang="scss">

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Cell from "./Minesweeper/Cell.svelte";
+    import Cell from "./Cell.svelte";
     export let width: number;
     export let height: number;
     export let mines: number;
