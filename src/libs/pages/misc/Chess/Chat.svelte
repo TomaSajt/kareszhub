@@ -2,24 +2,41 @@
     import type { Socket } from "socket.io-client";
     export let socket: Socket = undefined;
     export let connected = false;
+    let sendButton: HTMLButtonElement;
     let msgareatext = "";
     $: trimmedText = msgareatext.trim();
     $: remainingChars = 200 - trimmedText.length;
-    $: if(connected) {
-        socket.on('emit-message',(msg)=>console.log("You got the following message:", msg))
+    $: if (connected) {
+        socket.on("emit-message", (msg) =>
+            console.log("You got the following message:", msg)
+        );
     }
     function sendMessage() {
         socket.emit("sendMessage", trimmedText);
         msgareatext = "";
     }
 </script>
+
 <div id="container">
     <button
+        bind:this={sendButton}
         disabled={trimmedText.length < 1 || trimmedText.length > 200}
         on:click={sendMessage}>Send</button
     ><br />
     <div id="text-container">
-        <textarea name="msg-area" id="msg-area" cols="30" rows="10" bind:value={msgareatext} />
+        <textarea
+            on:keypress={(ev) => {
+                if ((ev.ctrlKey || ev.shiftKey) && ev.code === "Enter") {
+                    ev.preventDefault();
+                    sendButton.click();
+                }
+            }}
+            name="msg-area"
+            id="msg-area"
+            cols="30"
+            rows="10"
+            bind:value={msgareatext}
+        />
         <span
             style="color: {remainingChars > 20
                 ? 'rgba(0, 127, 0)'

@@ -1,8 +1,10 @@
 <script lang="ts">
     import sioClient, { Socket } from "socket.io-client";
     import Chat from "./Chat.svelte";
-    let socket: Socket = undefined;
+    const ip = "http://localhost:5000";
+    let socket: Socket = null;
     let connected = false;
+    let connecting = false;
     let boardData = [
         ["R", "Kn", "B", "Q", "Ko", "B", "Kn", "R"],
         ["P", "P", "P", "P", "P", "P", "P", "P"],
@@ -13,6 +15,33 @@
         ["P", "P", "P", "P", "P", "P", "P", "P"],
         ["R", "Kn", "B", "Q", "Ko", "B", "Kn", "R"],
     ];
+
+    function createNewSocket() {
+        socket = sioClient(ip);
+        connecting = true;
+        socket.on("connect", () => {
+            if (connected) return;
+            console.log("connected");
+            connected = true;
+            connecting = false;
+        });
+        socket.on("connect_error", () => {
+            console.log(`Couldn't connect to server, closing connection`);
+            removeSocket();
+        });
+        socket.on('disconnect', ()=>{
+            console.log(`Connection was disconnected, closing connection`);
+            removeSocket();
+        })
+    }
+    function removeSocket() {
+        if (socket instanceof Socket) {
+            socket.close();
+            socket = null;
+            connected = false;
+            connecting = false;
+        }
+    }
 </script>
 
 <div id="container">
@@ -20,15 +49,13 @@
         <button
             on:click={() => {
                 if (!socket) {
-                    socket = sioClient("http://localhost:5000");
-                    socket.on("connect", () => {
-                        if (connected) return;
-                        console.log("connected");
-                        connected = true;
-                    });
+                    createNewSocket();
                 }
             }}>Connect</button
         >
+        {#if connecting}
+            <span>Connecting...</span>
+        {/if}
     {:else}
         <Chat {socket} {connected} />
     {/if}
