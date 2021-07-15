@@ -60,9 +60,9 @@
         <Chat {socket} {connected} />
     {/if}
     <div id="chess-board">
-        {#each boardData as column}
-            {#each column as cell}
-                <div class="cell">
+        {#each boardData as column, i}
+            {#each column as cell, j}
+                <div class="cell" style="background-color: {(i+j)%2==0 ? 'black' : 'white'}; color: {(i+j)%2==1 ? "black" : "white"}">
                     <span>{cell}</span>
                 </div>
             {/each}
@@ -76,6 +76,8 @@
         justify-items: center;
     }
     #chess-board {
+        margin-top: 10px;
+        outline: 1px solid black;
         display: grid;
         grid-template-columns: repeat(8, auto);
         width: fit-content;

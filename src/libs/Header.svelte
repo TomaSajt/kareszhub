@@ -14,6 +14,11 @@
                     >Karesz Clicker</a
                 >
             </li>
+            <li>
+                <a href="/kareszDefense"
+                    >Karesz Defense</a
+                >
+            </li>
             <li id="left-start">
                 <a href="/other-stuff">Other Stuff</a>
             </li>

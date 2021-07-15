@@ -6,7 +6,7 @@
     <title>Minesweeper</title>
 </svelte:head>
 <div id="wrapper">
-    <Minesweeper height={9} width={9} mines={2} />
+    <Minesweeper height={9} width={9} mines={10} />
 </div>
 
 <style lang="scss">
