@@ -36,7 +36,6 @@
             setInterval(() => this.shoot(), waitTime);
         }
         shoot() {
-            console.log("Trying to find enemy");
             for (const enemy of enemies) {
                 if (
                     (this.x - enemy.x) * (this.x - enemy.x) +
@@ -44,6 +43,7 @@
                     this.range * this.range
                 ) {
                     enemy.health -= this.damage;
+                    break;
                 }
             }
         }
