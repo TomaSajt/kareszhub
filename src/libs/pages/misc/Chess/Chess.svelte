@@ -1,5 +1,6 @@
 <script lang="ts">
     import sioClient, { Socket } from "socket.io-client";
+    import { tick } from "svelte";
     import Chat from "./Chat.svelte";
     const ip = "https://kareszhub-chess-server.herokuapp.com/";
     let socket: Socket = null;
@@ -29,10 +30,10 @@
             console.log(`Couldn't connect to server, closing connection`);
             removeSocket();
         });
-        socket.on('disconnect', ()=>{
+        socket.on("disconnect", () => {
             console.log(`Connection was disconnected, closing connection`);
             removeSocket();
-        })
+        });
     }
     function removeSocket() {
         if (socket instanceof Socket) {
@@ -57,12 +58,20 @@
             <span>Connecting...</span>
         {/if}
     {:else}
-        <Chat {socket} {connected} />
+        
+        <Chat {socket} />
     {/if}
     <div id="chess-board">
         {#each boardData as column, i}
             {#each column as cell, j}
-                <div class="cell" style="background-color: {(i+j)%2==0 ? 'black' : 'white'}; color: {(i+j)%2==1 ? "black" : "white"}">
+                <div
+                    class="cell"
+                    style="background-color: {(i + j) % 2 == 0
+                        ? 'black'
+                        : 'white'}; color: {(i + j) % 2 == 1
+                        ? 'black'
+                        : 'white'}"
+                >
                     <span>{cell}</span>
                 </div>
             {/each}
