@@ -1,4 +1,5 @@
 <script lang="ts">
+    import TowerSelector from "../libs/pages/kareszDefense/TowerSelector.svelte";
     import { onMount } from "svelte";
 
     abstract class Tower {
@@ -70,8 +71,8 @@
         private _health: number;
         speed: number;
         constructor(health: number, speed: number) {
-            this.x = levels[currentLevel - 1].checkpoints[0].x;
-            this.y = levels[currentLevel - 1].checkpoints[0].y;
+            this.x = levels[currentLevel].checkpoints[0].x;
+            this.y = levels[currentLevel].checkpoints[0].y;
             this.targetCheckpoint = 1;
             this._health = health;
             this.speed = speed;
@@ -132,12 +133,12 @@
         }
     }
 
-    type Level = {
+    type LevelData = {
         image: string;
         checkpoints: { x: number; y: number }[];
     };
 
-    const levels: Level[] = [
+    const levels: LevelData[] = [
         {
             image: "kareszDefense/level1.png",
             checkpoints: [
@@ -151,7 +152,7 @@
         },
     ];
     let debug = false;
-    let currentLevel = 1;
+    let currentLevel = 0;
     let background: HTMLImageElement;
     let redWarriorImg: HTMLImageElement;
     let greenWarriorImg: HTMLImageElement;
@@ -164,22 +165,24 @@
 
     let canvas: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
-    let a = 1;
     onMount(() => {
-        enemies.push(new RedWarrior());
-        towers.push(new Turret(100, 100));
         ctx = canvas.getContext("2d");
         ctx.lineWidth = 2;
-        console.log("hello");
-        drawCanvas();
+        requestAnimationFrame(drawCanvas);
     });
+
+    function startLevel(level: number) {
+        currentLevel = level;
+        enemies = [];
+        towers = [];
+    }
 
     function normalize(x: number, y: number) {
         let abs = Math.sqrt(x * x + y * y);
         return { x: x / abs, y: y / abs };
     }
     function drawCanvas() {
-        let currentLevelData = levels[currentLevel - 1];
+        let currentLevelData = levels[currentLevel];
         for (const enemy of enemies) {
             let deltaSpeed = enemy.speed * deltaTime;
             let nextCheckpoint =
@@ -228,7 +231,7 @@
         for (const tower of towers) {
             tower.render();
         }
-        a = requestAnimationFrame(drawCanvas);
+        requestAnimationFrame(drawCanvas);
     }
     function removeEnemy(enemy: Enemy) {
         const index = enemies.indexOf(enemy);
@@ -245,7 +248,7 @@
 </script>
 
 <div id="container">
-    <div>
+    <div id="no-display">
         <img src="/kareszDefense/level1.png" alt="" bind:this={background} />
         <img
             src="/kareszDefense/red_warrior.png"
@@ -262,15 +265,17 @@
             alt=""
             bind:this={blueBruteImg}
         />
-        <img src="/kareszDefense/turret.png" alt="" bind:this={turretImg} />
     </div>
-    <h1>Level {currentLevel}</h1>
+    <h1>Level {currentLevel + 1}</h1>
     <canvas
         bind:this={canvas}
         width={800}
         height={600}
         on:click={onCanvasClick}
     /><br />
+    <TowerSelector>
+        <img src="/kareszDefense/turret.png" alt="" bind:this={turretImg} />
+    </TowerSelector>
     <button
         on:click={() => {
             enemies.push(new RedWarrior());
@@ -292,12 +297,14 @@
             debug = !debug;
         }}>Toggle Debug Mode</button
     >
+    <button
+        on:click={() => {
+            startLevel(currentLevel);
+        }}>Restart</button
+    >
 </div>
 
 <style lang="scss">
-    img {
-        display: none;
-    }
     #container {
         width: fit-content;
         margin: auto;
@@ -308,5 +315,11 @@
     }
     canvas {
         image-rendering: pixelated;
+    }
+    #no-display {
+        display: none;
+    }
+    :not(#no-display) img {
+        width: 100px;
     }
 </style>
