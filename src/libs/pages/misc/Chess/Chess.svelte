@@ -1,7 +1,7 @@
 <script lang="ts">
     import sioClient, { Socket } from "socket.io-client";
     import Chat from "./Chat.svelte";
-    const ip = "http://localhost:5000";
+    const ip = "https://kareszhub-chess-server.herokuapp.com/";
     let socket: Socket = null;
     let connected = false;
     let connecting = false;

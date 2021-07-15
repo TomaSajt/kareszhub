@@ -2,19 +2,24 @@
     import type { Socket } from "socket.io-client";
     export let socket: Socket = undefined;
     export let connected = false;
+    let inited = false;
     let sendButton: HTMLButtonElement;
     let msgareatext = "";
     $: trimmedText = msgareatext.trim();
     $: remainingChars = 200 - trimmedText.length;
-    $: if (connected) {
-        socket.on("emit-message", (msg) =>
-            console.log("You got the following message:", msg)
-        );
+    $: if (connected && !inited) {
+        inited = true;
+        socket.on("emit-message", (msg: string) => {
+            console.log("You got the following message:", msg);
+            messages = [...messages, msg];
+        });
     }
     function sendMessage() {
         socket.emit("sendMessage", trimmedText);
+        messages = [...messages, trimmedText];
         msgareatext = "";
     }
+    let messages: string[] = [];
 </script>
 
 <div id="container">
@@ -45,6 +50,10 @@
                 : 'rgba(255, 0, 0)'};">{remainingChars}</span
         >
     </div>
+
+    {#each messages as msg, i}
+        <p>{i + 1}. message: {msg}</p>
+    {/each}
 </div>
 
 <style lang="scss">
