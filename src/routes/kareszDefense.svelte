@@ -8,8 +8,13 @@
             this.x = x;
             this.y = y;
         }
-        abstract render(): void;
+        abstract renderBody(): void;
+        render() {
+            this.renderBody();
+            if (debug) this.renderDebug();
+        }
         renderDebug() {
+            ctx.fillStyle = "blue";
             ctx.beginPath();
             ctx.arc(this.x, this.y, 10, 0, Math.PI * 2);
             ctx.fill();
@@ -28,9 +33,10 @@
             super(x, y);
             this.range = range;
             this.damage = damage;
-            setInterval(() => this.shoot, waitTime);
+            setInterval(() => this.shoot(), waitTime);
         }
         shoot() {
+            console.log("Trying to find enemy");
             for (const enemy of enemies) {
                 if (
                     (this.x - enemy.x) * (this.x - enemy.x) +
@@ -41,12 +47,18 @@
                 }
             }
         }
+        renderDebug() {
+            super.renderDebug();
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.range, 0, Math.PI * 2);
+            ctx.stroke();
+        }
     }
     class Turret extends ShootingTower {
         constructor(x: number, y: number) {
-            super(x, y, 100, 20, 1000);
+            super(x, y, 100, 20, 300);
         }
-        render() {
+        renderBody() {
             ctx.drawImage(turretImg, this.x - 37, this.y - 40, 75, 50);
         }
     }
@@ -55,17 +67,33 @@
         x: number;
         y: number;
         targetCheckpoint: number;
-        health: number;
+        private _health: number;
         speed: number;
         constructor(health: number, speed: number) {
             this.x = levels[currentLevel - 1].checkpoints[0].x;
             this.y = levels[currentLevel - 1].checkpoints[0].y;
             this.targetCheckpoint = 1;
-            this.health = health;
+            this._health = health;
             this.speed = speed;
         }
-        abstract render(): void;
+        public set health(theNumber: number) {
+            this._health = theNumber;
+            if (theNumber <= 0) {
+                removeEnemy(this);
+            }
+        }
+        public get health() {
+            return this._health;
+        }
+        abstract renderBody(): void;
+        render() {
+            this.renderBody();
+            ctx.fillStyle = "red";
+            ctx.fillText(this._health.toString(), this.x, this.y);
+            if (debug) this.renderDebug();
+        }
         renderDebug() {
+            ctx.fillStyle = "blue";
             ctx.beginPath();
             ctx.arc(this.x, this.y, 10, 0, Math.PI * 2);
             ctx.fill();
@@ -76,15 +104,16 @@
         constructor() {
             super(100, 20);
         }
-        render() {
+        renderBody() {
             ctx.drawImage(redWarriorImg, this.x - 27, this.y - 30, 75, 50);
+            if (debug) this.renderDebug();
         }
     }
     class GreenWarrior extends Enemy {
         constructor() {
             super(70, 50);
         }
-        render() {
+        renderBody() {
             ctx.drawImage(
                 greenWarriorImg,
                 this.x - 18,
@@ -98,7 +127,7 @@
         constructor() {
             super(300, 5);
         }
-        render() {
+        renderBody() {
             ctx.drawImage(blueBruteImg, this.x - 35, this.y - 50, 74, 70);
         }
     }
@@ -195,11 +224,9 @@
         }
         for (const enemy of enemies) {
             enemy.render();
-            if (debug) enemy.renderDebug();
         }
         for (const tower of towers) {
             tower.render();
-            if (debug) tower.renderDebug();
         }
         a = requestAnimationFrame(drawCanvas);
     }
@@ -212,27 +239,38 @@
         const rect = this.getBoundingClientRect();
         let clickX = ev.clientX - rect.left;
         let clickY = ev.clientY - rect.top;
-        towers.push(new Turret(clickX, clickY))
+        towers.push(new Turret(clickX, clickY));
         towers = towers;
     }
 </script>
 
 <div id="container">
-    <img src="/kareszDefense/level1.png" alt="" bind:this={background} />
-    <img
-        src="/kareszDefense/red_warrior.png"
-        alt=""
-        bind:this={redWarriorImg}
-    />
-    <img
-        src="/kareszDefense/green_warrior.png"
-        alt=""
-        bind:this={greenWarriorImg}
-    />
-    <img src="/kareszDefense/blue_brute.png" alt="" bind:this={blueBruteImg} />
-    <img src="/kareszDefense/turret.png" alt="" bind:this={turretImg} />
-    <h1>{currentLevel}</h1>
-    <canvas bind:this={canvas} width={800} height={600} on:click={onCanvasClick}/><br />
+    <div>
+        <img src="/kareszDefense/level1.png" alt="" bind:this={background} />
+        <img
+            src="/kareszDefense/red_warrior.png"
+            alt=""
+            bind:this={redWarriorImg}
+        />
+        <img
+            src="/kareszDefense/green_warrior.png"
+            alt=""
+            bind:this={greenWarriorImg}
+        />
+        <img
+            src="/kareszDefense/blue_brute.png"
+            alt=""
+            bind:this={blueBruteImg}
+        />
+        <img src="/kareszDefense/turret.png" alt="" bind:this={turretImg} />
+    </div>
+    <h1>Level {currentLevel}</h1>
+    <canvas
+        bind:this={canvas}
+        width={800}
+        height={600}
+        on:click={onCanvasClick}
+    /><br />
     <button
         on:click={() => {
             enemies.push(new RedWarrior());
@@ -248,6 +286,7 @@
             enemies.push(new BlueBrute());
         }}>Add blue brute</button
     >
+    <br />
     <button
         on:click={() => {
             debug = !debug;
@@ -262,6 +301,10 @@
     #container {
         width: fit-content;
         margin: auto;
+        -webkit-user-select: none; /* Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+/Edge */
+        user-select: none; /* Standard */
     }
     canvas {
         image-rendering: pixelated;
