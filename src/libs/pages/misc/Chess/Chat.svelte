@@ -33,7 +33,10 @@
     <div id="msg-container" bind:this={msgContainer}>
         {#each messages as msg, i}
             <div
-                transition:fly={{x: (msg.author == "You" ? -200 : 200), duration:200}}
+                transition:fly={{
+                    x: msg.author == "You" ? -200 : 200,
+                    duration: 200,
+                }}
                 class={msg.author == "You" ? "msg own-msg" : "msg"}
             >
                 <span class="author">{msg.author}</span>
@@ -82,6 +85,18 @@
 
         outline: 1px solid black;
     }
+    ::-webkit-scrollbar {
+        width: 3px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #eee;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #777;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #666;
+    }
     #msg-container {
         overflow-x: hidden;
         overflow-y: auto;
@@ -119,26 +134,6 @@
                 overflow-wrap: break-word;
                 white-space: pre-wrap;
             }
-        }
-
-        /* width */
-        &::-webkit-scrollbar {
-            width: 3px;
-        }
-
-        /* Track */
-        &::-webkit-scrollbar-track {
-            background: #eee;
-        }
-
-        /* Handle */
-        &::-webkit-scrollbar-thumb {
-            background: #777;
-        }
-
-        /* Handle on hover */
-        &::-webkit-scrollbar-thumb:hover {
-            background: #666;
         }
     }
     #text-container {
