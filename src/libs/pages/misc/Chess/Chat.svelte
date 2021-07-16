@@ -1,11 +1,13 @@
 <script lang="ts">
     import type { Socket } from "socket.io-client";
+    import { tick } from "svelte";
+    import { scale, fly } from "svelte/transition";
     export let socket: Socket = undefined;
     socket.on("emit-message", (msg: string) => {
         console.log("You got the following message:", msg);
         addMessage({ content: msg, author: "Unknown" });
     });
-    let inited = false;
+    let msgContainer: HTMLDivElement;
     let sendButton: HTMLButtonElement;
     let msgareatext = "";
     $: trimmedText = msgareatext.trim();
@@ -15,8 +17,10 @@
         addMessage({ content: trimmedText, author: "You" });
         msgareatext = "";
     }
-    function addMessage(msg: MessageData) {
+    async function addMessage(msg: MessageData) {
         messages = [...messages, msg];
+        await tick();
+        msgContainer.scrollTop = msgContainer.scrollHeight;
     }
     type MessageData = {
         content: string;
@@ -26,24 +30,24 @@
 </script>
 
 <div id="container">
-    <div id="messages">
+    <div id="msg-container" bind:this={msgContainer}>
         {#each messages as msg, i}
-            <div class={`msg ${msg.author == "You" ? "own-msg" : ""}`}>
-                {msg.content}
+            <div
+                transition:fly={{x: (msg.author == "You" ? -200 : 200), duration:200}}
+                class={msg.author == "You" ? "msg own-msg" : "msg"}
+            >
+                <span class="author">{msg.author}</span>
+                <div class="msg-box">
+                    {msg.content}
+                </div>
             </div>
         {/each}
     </div>
     <div id="bottom-container">
-        <button
-            id="send"
-            bind:this={sendButton}
-            disabled={trimmedText.length < 1 || trimmedText.length > 200}
-            on:click={sendMessage}>Send</button
-        >
         <div id="text-container">
             <textarea
                 on:keypress={(ev) => {
-                    if ((ev.ctrlKey || ev.shiftKey) && ev.code === "Enter") {
+                    if (!ev.shiftKey && ev.code === "Enter") {
                         ev.preventDefault();
                         sendButton.click();
                     }
@@ -55,6 +59,7 @@
                 bind:value={msgareatext}
             />
             <span
+                id="char-counter"
                 style="color: {remainingChars > 20
                     ? 'rgba(0, 127, 0)'
                     : remainingChars > 0
@@ -62,33 +67,78 @@
                     : 'rgba(255, 0, 0)'};">{remainingChars}</span
             >
         </div>
+        <button
+            id="send"
+            bind:this={sendButton}
+            disabled={trimmedText.length < 1 || trimmedText.length > 200}
+            on:click={sendMessage}>Send</button
+        >
     </div>
 </div>
 
 <style lang="scss">
     #container {
         width: 400px;
-    }
-    #messages {
+
         outline: 1px solid black;
+    }
+    #msg-container {
+        overflow-x: hidden;
+        overflow-y: auto;
+        height: 300px;
         padding: 5px;
         .msg {
-            padding: 5px 10px;
-            border-radius: 10px;
-            width: fit-content;
-            max-width: calc(160px);
-            background-color: #888;
-            color: white;
-            text-align: left;
-            font: 400 13.3333px Arial;
-            overflow-wrap: break-word;
             &:not(:first-child) {
                 margin-top: 5px;
             }
             &.own-msg {
-                margin-left: auto;
-                background-color: hsl(236, 90%, 51%);
+                .author {
+                    margin-left: auto;
+                    margin-right: 5px;
+                }
+                .msg-box {
+                    margin-left: auto;
+                    background-color: hsl(236, 90%, 51%);
+                }
             }
+            .author {
+                display: block;
+                width: fit-content;
+                font-size: 10px;
+                margin-left: 5px;
+            }
+            .msg-box {
+                padding: 5px 10px;
+                border-radius: 10px;
+                width: fit-content;
+                max-width: calc(160px);
+                background-color: #888;
+                color: white;
+                text-align: left;
+                font: 400 13.3333px Arial;
+                overflow-wrap: break-word;
+                white-space: pre-wrap;
+            }
+        }
+
+        /* width */
+        &::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        /* Track */
+        &::-webkit-scrollbar-track {
+            background: #eee;
+        }
+
+        /* Handle */
+        &::-webkit-scrollbar-thumb {
+            background: #777;
+        }
+
+        /* Handle on hover */
+        &::-webkit-scrollbar-thumb:hover {
+            background: #666;
         }
     }
     #text-container {
@@ -98,19 +148,23 @@
             width: 300px;
             display: block;
         }
+        #char-counter {
+            position: absolute;
+            right: 10px;
+            top: 0;
+            height: fit-content;
+            bottom: 2px;
+            margin-top: auto;
+            margin-bottom: auto;
+            opacity: 0.5;
+        }
     }
     #bottom-container {
         display: flex;
-        align-items: center;
+        align-items: stretch;
         outline: 1px solid black;
     }
     #send {
         flex-grow: 1;
-    }
-    span {
-        position: absolute;
-        right: 10px;
-        bottom: 10px;
-        opacity: 0.5;
     }
 </style>
