@@ -1,20 +1,21 @@
 <script lang="ts">
     import type { Socket } from "socket.io-client";
     import { tick } from "svelte";
-    import { scale, fly } from "svelte/transition";
+    import { fly } from "svelte/transition";
     export let socket: Socket = undefined;
-    socket.on("emit-message", (msg: string) => {
+    socket.on("chat-recieve-message", (msg: string, name: string) => {
         console.log("You got the following message:", msg);
-        addMessage({ content: msg, author: "Unknown" });
+        addMessage({ content: msg, author: name, owner: false });
     });
+    let myname = socket.id;
     let msgContainer: HTMLDivElement;
     let sendButton: HTMLButtonElement;
     let msgareatext = "";
     $: trimmedText = msgareatext.trim();
     $: remainingChars = 200 - trimmedText.length;
     function sendMessage() {
-        socket.emit("sendMessage", trimmedText);
-        addMessage({ content: trimmedText, author: "You" });
+        socket.emit("chat-send-message", trimmedText);
+        addMessage({ content: trimmedText, author: `${myname}`, owner: true });
         msgareatext = "";
     }
     async function addMessage(msg: MessageData) {
@@ -25,21 +26,26 @@
     type MessageData = {
         content: string;
         author: string;
+        owner: boolean;
     };
     let messages: MessageData[] = [];
 </script>
 
 <div id="container">
     <div id="msg-container" bind:this={msgContainer}>
+        <button id="change-name-btn" on:click={async () => {
+            myname = prompt(undefined, myname)
+            socket.emit("chat-change-name", myname);
+        }}>Change name</button>
         {#each messages as msg, i}
             <div
                 transition:fly={{
-                    x: msg.author == "You" ? -200 : 200,
+                    x: msg.owner ? -200 : 200,
                     duration: 200,
                 }}
-                class={msg.author == "You" ? "msg own-msg" : "msg"}
+                class={msg.owner? "msg own-msg" : "msg"}
             >
-                <span class="author">{msg.author}</span>
+                <span class="author">{msg.author + (msg.owner ? " (You)" : "")}</span>
                 <div class="msg-box">
                     {msg.content}
                 </div>
@@ -98,6 +104,10 @@
         background: #666;
     }
     #msg-container {
+        #change-name-btn {
+            position: absolute;
+        }
+
         overflow-x: hidden;
         overflow-y: auto;
         height: 300px;
