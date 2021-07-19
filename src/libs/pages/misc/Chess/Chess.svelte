@@ -1,20 +1,20 @@
 <script lang="ts">
-    import sioClient, { Socket } from "socket.io-client";
-    import { tick } from "svelte";
+    import sioClient,{ Socket } from "socket.io-client";
     import Chat from "./Chat.svelte";
+
     const ip = "https://kareszhub-chess-server.herokuapp.com/";
     let socket: Socket = null;
     let connected = false;
     let connecting = false;
     let boardData = [
-        ["R", "Kn", "B", "Q", "Ko", "B", "Kn", "R"],
+        ["R", "Kn", "B", "Ki", "Q", "B", "Kn", "R"],
         ["P", "P", "P", "P", "P", "P", "P", "P"],
         ["E", "E", "E", "E", "E", "E", "E", "E"],
         ["E", "E", "E", "E", "E", "E", "E", "E"],
         ["E", "E", "E", "E", "E", "E", "E", "E"],
         ["E", "E", "E", "E", "E", "E", "E", "E"],
         ["P", "P", "P", "P", "P", "P", "P", "P"],
-        ["R", "Kn", "B", "Q", "Ko", "B", "Kn", "R"],
+        ["R", "Kn", "B", "Ki", "Q", "B", "Kn", "R"],
     ];
 
     function createNewSocket() {
