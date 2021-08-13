@@ -15,7 +15,7 @@
                 >
             </li>
             <li id="left-start">
-                <a href="/other-stuff">Other Stuff</a>
+                <a href="/misc">Other Stuff</a>
             </li>
             <li>
                 <a href="/about">About Website</a>

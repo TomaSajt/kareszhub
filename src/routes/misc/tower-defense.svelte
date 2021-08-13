@@ -140,7 +140,7 @@
 
     const levels: LevelData[] = [
         {
-            image: "kareszDefense/level1.png",
+            image: "/TowerDefense/level1.png",
             checkpoints: [
                 { x: 0, y: 435 },
                 { x: 250, y: 435 },
@@ -214,8 +214,7 @@
             }
         }
         enemies = enemies;
-
-        ctx.drawImage(background, 0, 0);
+        if(background) ctx.drawImage(background, 0, 0);
         if (debug) {
             for (let i = 0; i < currentLevelData.checkpoints.length - 1; i++) {
                 ctx.beginPath();
@@ -254,20 +253,20 @@
 
 <div id="container">
     <div id="no-display">
-        <img src="/kareszDefense/level1.png" alt="" bind:this={background} />
+        <img src="/TowerDefense/level1.png" alt="" bind:this={background} />
         <img
-            src="/kareszDefense/red_warrior.png"
-            alt=""
+            src="/TowerDefense/red_warrior.png"
+            alt="Red Warrior"
             bind:this={redWarriorImg}
         />
         <img
-            src="/kareszDefense/green_warrior.png"
-            alt=""
+            src="/TowerDefense/green_warrior.png"
+            alt="Green Warrior"
             bind:this={greenWarriorImg}
         />
         <img
-            src="/kareszDefense/blue_brute.png"
-            alt=""
+            src="/TowerDefense/blue_brute.png"
+            alt="Blue Brute"
             bind:this={blueBruteImg}
         />
     </div>
@@ -279,7 +278,7 @@
         on:click={onCanvasClick}
     /><br />
     <TowerSelector>
-        <img src="/kareszDefense/turret.png" alt="" bind:this={turretImg} />
+        <img src="/TowerDefense/turret.png" alt="" bind:this={turretImg} />
     </TowerSelector>
     <button
         on:click={() => {

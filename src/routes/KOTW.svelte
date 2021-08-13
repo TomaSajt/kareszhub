@@ -514,20 +514,24 @@
         }}>Upload level</button
     >
     <button on:click={reset}>Reset</button>
-    <button on:click={()=>{
-        instructions.push({name:"turnleft"})
-        instructions = instructions
-    }}>Add turn left</button>
-    <button on:click={()=>{
-        if(instructions[instructions.length-1].name != "turnleft") return
-        instructions.pop()
-        instructions = instructions
-    }}>Remove turn left</button>
+    <button
+        on:click={() => {
+            instructions.push({ name: "turnleft" });
+            instructions = instructions;
+        }}>Add turn left</button
+    >
+    <button
+        on:click={() => {
+            if (instructions[instructions.length - 1].name != "turnleft")
+                return;
+            instructions.pop();
+            instructions = instructions;
+        }}>Remove turn left</button
+    >
 </div>
 <div id="instrs-container">
     <Instructions instrs={instructions} />
 </div>
-
 
 <style lang="scss">
     #hidden-imgs img {

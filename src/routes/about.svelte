@@ -2,27 +2,17 @@
     <title>About</title>
 </svelte:head>
 <div class="fix-width">
-    <h2>About Kareszhub</h2>
+    <h1>About Kareszhub</h1>
+    <p>Kareszhub is a website made by Karesz lovers for Karesz lovers</p>
+    <p>Karesz clicker and KOTW were games originally made in Native JS, then NextJS, and now they have been brought over to Svelte</p>
     <p>
-        My original website - tomasajt.github.io - was one of my first websites
-        and that's where I made the first version of Karesz Clicker, Karesz
-        Clock and eventually KOTW. I found it fun but didn't know what I
-        wanted to do <span class="italic">next</span>.
+        This website was made to migrate some of the old games from React to
+        Svelte
     </p>
-    <p>
-        One of my friends showed me NextJS, so I started creating the second website, 'kareszhub'.
-        I remade some of the original stuff from the previous website, like Karesz Clicker and KOTW.
-    </p>
-    <p>
-        But React's jankiness was a bit too much for KOTW, so I switched to Svelte.
-        I was lucky because they had only released SvelteKit that year, and I could create a multi-page site (just like with NextJS).
-    </p>
+    <p>The website also houses some extra project I've been working on</p>
 </div>
 
-<style  lang="scss">
-    h2 {
-        text-align: center;
-    }
+<style lang="scss">
     * {
         margin: 0;
     }
@@ -32,5 +22,4 @@
     p {
         text-align: justify;
     }
-    
 </style>
