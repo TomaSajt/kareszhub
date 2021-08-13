@@ -250,6 +250,9 @@
         towers = towers;
     }
 </script>
+<svelte:head>
+    <title>Tower Defense</title>
+</svelte:head>
 
 <div id="container">
     <div id="no-display">

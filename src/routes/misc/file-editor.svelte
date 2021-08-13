@@ -124,6 +124,10 @@
     }
 </script>
 
+<svelte:head>
+    <title>File Editor</title>
+</svelte:head>
+
 <div id="container">
     <button on:click={() => newTab()}>New</button>
     <button on:click={() => open().catch()}>Open</button>

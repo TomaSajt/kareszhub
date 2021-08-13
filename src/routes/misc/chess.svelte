@@ -11,8 +11,8 @@
 
 <style lang="scss">
     #wrapper {
-        width: fit-content;
-        margin: auto;
+        display: grid;
+        place-items: center;
         margin-top: 30px;
     }
 </style>

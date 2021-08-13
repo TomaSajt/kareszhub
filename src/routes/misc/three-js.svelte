@@ -25,6 +25,10 @@ ConeBufferGeometry
     let height = 0;
 </script>
 
+<svelte:head>
+    <title>Three.js Testing</title>
+</svelte:head>
+
 <div id="container">
     {#if typeof window !== "undefined"}
         <Canvas let:sti w={500} h={500}>

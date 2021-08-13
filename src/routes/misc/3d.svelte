@@ -16,6 +16,9 @@
         return str;
     }
 </script>
+<svelte:head>
+    <title>3D Thingy</title>
+</svelte:head>
 
 <input type="range" min="-17" max="17" bind:value={x} />
 <input
