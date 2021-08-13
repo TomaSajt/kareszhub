@@ -1,5 +1,5 @@
 <script lang="ts">
-    import TowerSelector from "../libs/pages/kareszDefense/TowerSelector.svelte";
+    import TowerSelector from "../../libs/pages/kareszDefense/TowerSelector.svelte";
     import { onMount } from "svelte";
 
     abstract class Tower {
@@ -165,9 +165,7 @@
 
     let canvas: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
-    onMount(() => {
-        ctx = canvas.getContext("2d");
-        ctx.lineWidth = 2;
+    onMount(async () => {
         requestAnimationFrame(drawCanvas);
     });
 
@@ -182,6 +180,13 @@
         return { x: x / abs, y: y / abs };
     }
     function drawCanvas() {
+        if (!canvas) {
+            requestAnimationFrame(drawCanvas);
+            return;
+        }
+        console.log("asd");
+        ctx = canvas.getContext("2d");
+        ctx.lineWidth = 2;
         let currentLevelData = levels[currentLevel];
         for (const enemy of enemies) {
             let deltaSpeed = enemy.speed * deltaTime;

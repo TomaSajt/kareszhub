@@ -1,4 +1,4 @@
-<footer>This website was made using Svelte, because fuck you React</footer>
+<footer>Hello, this is a footer</footer>
 
 <style lang="scss">
     footer {

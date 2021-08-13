@@ -9,9 +9,11 @@
         Karesz.
     </p>
     <h2><a href="./misc/minesweeper">Minesweeper</a></h2>
-    <h2><a href="./misc/3d-test">3D thingy</a></h2>
-    <h2><a href="./misc/three">three.js testing</a></h2>
-    <h2><a href="./misc/chess">Chess?</a></h2>
+    <h2><a href="./misc/3d">3D thingy</a></h2>
+    <h2><a href="./misc/three-js">three.js testing</a></h2>
+    <h2><a href="./misc/chess">Chess? (Only the chat is implemented lol)</a></h2>
+    <h2><a href="./misc/tower-defense">Tower Defense</a></h2>
+    <h2><a href="./misc/file-editor">File editor</a></h2>
 </div>
 
 <style lang="scss">

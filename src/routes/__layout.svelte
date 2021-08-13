@@ -11,7 +11,7 @@
 
 <style lang="scss">
     main {
-        position: relative;;
+        position: relative;
         flex: 1;
     }
     :global(.italic) {
