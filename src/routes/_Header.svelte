@@ -10,7 +10,7 @@
                 <a href="/kotw">KOTW</a>
             </li>
             <li>
-                <a href="https://kareszhub.vercel.app/kareszClicker"
+                <a href="/karesz-clicker"
                     >Karesz Clicker</a
                 >
             </li>
