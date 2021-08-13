@@ -1,5 +1,5 @@
 <script lang="ts">
-    import TowerSelector from "../../libs/pages/kareszDefense/TowerSelector.svelte";
+    import TowerSelector from "./TowerDefense/_TowerSelector.svelte";
     import { onMount } from "svelte";
 
     abstract class Tower {

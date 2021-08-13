@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Chess from "../../libs/pages/misc/Chess/Chess.svelte";
+    import Chess from "./Chess/_Chess.svelte";
 </script>
 
 <svelte:head>

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Minesweeper from "../../libs/pages/misc/Minesweeper/Minesweeper.svelte";
+    import Minesweeper from "./Minesweeper/_Minesweeper.svelte";
 </script>
 
 <svelte:head>

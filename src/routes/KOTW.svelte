@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { Color, Instruction } from "../libs/pages/KOTW/instructions";
-    import Instructions from "../libs/pages/KOTW/Instuctions.svelte";
+    import type { Color, Instruction } from "./KOTW/instructions";
+    import Instructions from "./KOTW/_Instuctions.svelte";
     import { onMount } from "svelte";
 
     enum Cell {

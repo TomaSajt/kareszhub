@@ -7,7 +7,7 @@
     <nav>
         <ul class="flex">
             <li>
-                <a href="/KOTW">KOTW</a>
+                <a href="/kotw">KOTW</a>
             </li>
             <li>
                 <a href="https://kareszhub.vercel.app/kareszClicker"
