@@ -19,7 +19,7 @@
         close(): Promise<void>;
     }
     interface DataTransferItemExt extends DataTransferItem {
-        getAsFileSystemHandle(): FileSystemFileHandle;
+        getAsFileSystemHandle(): Promise<FileSystemFileHandle>;
     }
     type Tab = {
         fileHandle: FileSystemFileHandle;
@@ -36,43 +36,65 @@
     let selected = 0;
     let newFileCount = 1;
 
-    function dragover_handler(ev: DragEvent) {
+    function dragOverHandler(ev: DragEvent) {
         ev.preventDefault();
         ev.dataTransfer.dropEffect = "copy";
     }
-    async function drop_handler(ev: DragEvent) {
+    async function dropHandler(ev: DragEvent) {
         ev.preventDefault();
         const dataTransfer = ev.dataTransfer;
-        const target = ev.target as HTMLElement;
-        //for (let i = 0; i < dataTransfer.items.length; i++) {
-        //const item = dataTransfer.items[i];
-        //@ts-ignore
-        const item: DataTransferItemExt = dataTransfer.items[0];
-        if (item.kind !== "file") return;
-        const fileHandle = await item.getAsFileSystemHandle();
-        if (fileHandle.kind !== "file") return;
+        const items: DataTransferItemExt[] = [];
+        for (let i = 0; i < dataTransfer.items.length; i++) {
+            const item = dataTransfer.items[i];
+            //@ts-ignore
+            if (item.kind === "file") items.push(item);
+        }
+        const fileHandleArr = (
+            await Promise.all(items.map((item) => item.getAsFileSystemHandle()))
+        ).filter((handle) => handle.kind === "file");
+        for (const fileHandle of fileHandleArr) {
+            await openHandle(fileHandle);
+        }
+    }
+    async function keyDownHandler(
+        this: HTMLTextAreaElement,
+        ev: KeyboardEvent
+    ) {
+        if (ev.key == "Tab") {
+            ev.preventDefault();
+            var start = this.selectionStart;
+            var end = this.selectionEnd;
+            this.value =
+                this.value.substring(0, start) +
+                "\t" +
+                this.value.substring(end);
+            await tick();
+            this.selectionStart = this.selectionEnd = start + 1;
+        }
+    }
+    async function open() {
+        let fileHandleArr: FileSystemFileHandle[] = await window
+            //@ts-ignore
+            .showOpenFilePicker({
+                multiple: true,
+            })
+            .catch(() => []);
+        for (const fileHandle of fileHandleArr) {
+            await openHandle(fileHandle);
+        }
+    }
+    async function openHandle(fileHandle: FileSystemFileHandle) {
         let file: File = await fileHandle.getFile();
         let text = await file.text();
         let name = file.name;
         tabs = [...tabs, { fileHandle, text, name }];
         selected = tabs.length - 1;
-
-        //}
     }
     async function save(saveAs: boolean) {
         let fileHandle = tabs[selected].fileHandle;
         if (saveAs || !fileHandle) {
             //@ts-ignore
-            fileHandle = (await window.showSaveFilePicker({
-                types: [
-                    {
-                        //description: "Text Files",
-                        accept: {
-                            "text/plain": [".txt"],
-                        },
-                    },
-                ],
-            })) as [FileSystemFileHandle];
+            fileHandle = await window.showSaveFilePicker();
             let file = await fileHandle.getFile();
             let name = file.name;
             tabs[selected] = {
@@ -104,6 +126,7 @@
 
 <div id="container">
     <button on:click={() => newTab()}>New</button>
+    <button on:click={() => open().catch()}>Open</button>
     <button on:click={() => save(false).catch()}>Save</button>
     <button on:click={() => save(true).catch()}>Save As</button>
     <div id="tabs">
@@ -122,21 +145,9 @@
     <textarea
         id="editor"
         rows="30"
-        on:drop={drop_handler}
-        on:dragover={dragover_handler}
-        on:keydown={async function (ev) {
-            if (ev.key == "Tab") {
-                ev.preventDefault();
-                var start = this.selectionStart;
-                var end = this.selectionEnd;
-                this.value =
-                    this.value.substring(0, start) +
-                    "\t" +
-                    this.value.substring(end);
-                await tick();
-                this.selectionStart = this.selectionEnd = start + 1;
-            }
-        }}
+        on:drop={(ev) => dropHandler(ev).catch()}
+        on:dragover={dragOverHandler}
+        on:keydown={keyDownHandler}
         bind:value={tabs[selected].text}
     />
 </div>
@@ -195,15 +206,15 @@
         margin: 20px;
     }
     #editor {
+        &:focus {
+            background-color: #fff;
+        }
         width: 100%;
         display: block;
         border: 2px solid black;
         outline: none;
         background-color: #f7f7f7;
         resize: none;
-        &:focus {
-            background-color: #fff;
-        }
         white-space: nowrap;
     }
 </style>
