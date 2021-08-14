@@ -45,8 +45,7 @@
         const dataTransfer = ev.dataTransfer;
         const items: DataTransferItemExt[] = [];
         for (let i = 0; i < dataTransfer.items.length; i++) {
-            const item = dataTransfer.items[i];
-            //@ts-ignore
+            const item: DataTransferItemExt = <any>dataTransfer.items[i];
             if (item.kind === "file") items.push(item);
         }
         const fileHandleArr = (
@@ -73,8 +72,7 @@
         }
     }
     async function open() {
-        let fileHandleArr: FileSystemFileHandle[] = await window
-            //@ts-ignore
+        let fileHandleArr: FileSystemFileHandle[] = await (<any>window)
             .showOpenFilePicker({
                 multiple: true,
             })
@@ -93,8 +91,7 @@
     async function save(saveAs: boolean) {
         let fileHandle = tabs[selected].fileHandle;
         if (saveAs || !fileHandle) {
-            //@ts-ignore
-            fileHandle = await window.showSaveFilePicker();
+            fileHandle = await (<any>window).showSaveFilePicker();
             let file = await fileHandle.getFile();
             let name = file.name;
             tabs[selected] = {

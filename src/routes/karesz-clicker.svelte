@@ -34,7 +34,10 @@
         min-width: 1000px;
         grid-template-columns: 1fr 2fr 1fr;
         grid-template-rows: 1fr 2fr 1fr;
-        grid-template-areas: "left top right" "left center right" "left bottom right";
+        grid-template-areas:
+        "left top right"
+        "left center right"
+        "left bottom right";
     }
     #center-container {
         grid-area: center;
