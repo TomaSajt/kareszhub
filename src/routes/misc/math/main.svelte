@@ -23,7 +23,7 @@
     <ul>
         <a href="./trigonometry"><li>Trigonometry</li></a>
         <a href="./derivatives"><li>Derivatives</li></a>
-        <a href="./integrals"><li>Integrals</li></a>
+        <a href="./integrals/intro"><li>Integrals</li></a>
     </ul>
 </MathContext>
 

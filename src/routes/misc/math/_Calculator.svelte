@@ -13,16 +13,16 @@
         let calculator = Desmos.GraphingCalculator(div, {
             keypad: false,
             expressionsTopbar: false,
+            settingsMenu: false,
+            zoomButtons: false
         });
         calculator.setExpressions(expressions);
     });
 </script>
-
-<svelte:head>
-    <title>Title</title>
-</svelte:head>
-
 <div id="calculator" style="width: {width}px;height: {height}px;" bind:this={div} />
 
 <style lang="scss">
+    #calculator {
+        margin: 20px 0;
+    }
 </style>
